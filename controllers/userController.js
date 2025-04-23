@@ -1,4 +1,4 @@
-import { User } from '../models/inidex.js';
+import { User } from '../models/index.js';
 
 const userController = {
     async getUsers(_req, res) {
