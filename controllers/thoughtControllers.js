@@ -63,6 +63,46 @@ const thoughtController = {
             res.status(500).json(err);
         }
     },
+
+    async addReaction(req, res) {
+        try {
+            const updatedThought = await Thought.findByIdAndUpdate(
+                req.params.thoughtId,
+                { $push: { reactions: req.body } },
+                { new: true, runValidators: true }
+            );
+
+            if (!updatedThought) {
+                return res.status(404).json({ message: 'Thought not found' });
+            }
+
+            res.json(updatedThought);
+        } catch (err) {
+            console.error('Add Reaction Error:', err);
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+
+    async removeReaction(req, res) {
+        try {
+            const updatedThought = await Thought.findByIdAndUpdate(
+                req.params.thoughtId,
+                { $pull: { reactions: { reactionId: req.params.reactionId } } },
+                { new: true }
+            );
+
+            if (!updatedThought) {
+                return res.status(404).json({ message: 'Thought not found' });
+            }
+
+            res.json(updatedThought);
+        } catch (err) {
+            console.error('Remove Reaction Error:', err);
+            res.status(500).json({ error: err.message });
+        }
+    }
+
 };
 
 export default thoughtController;

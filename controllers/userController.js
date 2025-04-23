@@ -1,7 +1,7 @@
 import { User, Thought } from '../models/index.js';
 
 const userController = {
-  // GET all users
+  
   async getUsers(_req, res) {
     try {
       const users = await User.find()
@@ -14,7 +14,6 @@ const userController = {
     }
   },
 
-  // GET a single user by ID
   async getSingleUser(req, res) {
     try {
       const user = await User.findById(req.params.userId)
@@ -32,7 +31,7 @@ const userController = {
     }
   },
 
-  // CREATE a new user
+ 
   async createUser(req, res) {
     try {
       const newUser = await User.create(req.body);
@@ -43,7 +42,7 @@ const userController = {
     }
   },
 
-  // UPDATE a user by ID
+  
   async updateUser(req, res) {
     try {
       const updatedUser = await User.findByIdAndUpdate(
@@ -63,7 +62,6 @@ const userController = {
     }
   },
 
-  // DELETE a user by ID
   async deleteUser(req, res) {
     try {
       const deletedUser = await User.findByIdAndDelete(req.params.userId);
@@ -81,6 +79,44 @@ const userController = {
       res.status(500).json({ error: err.message });
     }
   },
+  async addFriend(req, res) {
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.userId,
+        { $addToSet: { friends: req.params.friendId } }, // prevent duplicates
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.json(updatedUser);
+    } catch (err) {
+      console.error('Add Friend Error:', err);
+      res.status(500).json({ error: err.message });
+    }
+  },
+  
+  async removeFriend(req, res) {
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.userId,
+        { $pull: { friends: req.params.friendId } },
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.json(updatedUser);
+    } catch (err) {
+      console.error('Remove Friend Error:', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+  
 };
 
 export default userController;
