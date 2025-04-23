@@ -1,4 +1,4 @@
-import { Thought, User } from '../model/index.js';
+import { Thought, User } from '../models/index.js';
 
 const thoughtController = {
     async getThoughts(_req, res) {
@@ -41,7 +41,8 @@ const thoughtController = {
                 req.body,
                 { new: true, runValidators: true }
             );
-            if (!updatedThought) return res.status(404).json({ message: 'Thought not found' };
+            if (!updatedThought) return res.status(404).json({ message: 'Thought not found' });
+
             res.json(updatedThought);
         } catch (err) {
             res.status(500).json(err);
