@@ -13,7 +13,7 @@ const thoughtController = {
     async getSingleThought(req, res) {
         try {
             const thought = await Thought.findById(req.params.thoughtId);
-            if (!thought) return res.status(404).json({ message: 'Thought not found' })
+            if (!thought) return res.status(404).json({ message: 'Thought not found' });
             res.json(thought);
         } catch (err) {
             res.status(500).json(err);
@@ -48,14 +48,16 @@ const thoughtController = {
             res.status(500).json(err);
         }
     },
+
     async deleteThought(req, res) {
         try {
-            const deleteThought = await Thought.findByIdAndDelete(req.parms.thoughtId);
-            if (!deleteThought) return res.status(404).json({ message: 'Thought not found' });
+            const deletedThought = await Thought.findByIdAndDelete(req.params.thoughtId);
+            if (!deletedThought) return res.status(404).json({ message: 'Thought not found' });
 
-            await User.findByIdAndUpdate(
-                { thoughts: deleteThought._id },
-                { $pull: { thoughts: deleteThought._id } }
+            // Remove reference from user
+            await User.findOneAndUpdate(
+                { thoughts: req.params.thoughtId },
+                { $pull: { thoughts: req.params.thoughtId } }
             );
 
             res.json({ message: 'Thought deleted' });
@@ -83,26 +85,29 @@ const thoughtController = {
         }
     },
 
-
     async removeReaction(req, res) {
         try {
             const updatedThought = await Thought.findByIdAndUpdate(
                 req.params.thoughtId,
-                { $pull: { reactions: { reactionId: req.params.reactionId } } },
+                {
+                    $pull: {
+                        reactions: { _id: req.params.reactionId } 
+                    }
+                },
                 { new: true }
             );
-
+    
             if (!updatedThought) {
                 return res.status(404).json({ message: 'Thought not found' });
             }
-
+    
             res.json(updatedThought);
         } catch (err) {
             console.error('Remove Reaction Error:', err);
             res.status(500).json({ error: err.message });
         }
     }
-
+    
 };
 
 export default thoughtController;
